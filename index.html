@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Scientifically-Optimized Affirmations</title>
+<meta name="description" content="Affirmations after Morning Pages with embodiment, visualization, spaced repetition, believability, and micro-actions." />
+<style>
+:root{
+  --bg:#0b0f18; --panel:#0e1420; --ink:#eef2f7; --muted:#98a2b3; --line:#1f2a3a;
+  --hi:#84cc16; --hi2:#22c55e; --warn:#f59e0b; --bad:#ef4444;
+}
+*{box-sizing:border-box} html,body{height:100%}
+body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:var(--ink);background:
+radial-gradient(1200px 800px at 10% -10%, #1f2937 0%, #0b0f18 40%, #0b0f18 100%);}
+header{position:sticky;top:0;backdrop-filter:blur(8px);background:rgba(10,14,22,.6);
+  border-bottom:1px solid var(--line);padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between}
+h1{font-size:18px;margin:0} h2{font-size:16px;margin:0 0 8px}
+main{max-width:900px;margin:20px auto;padding:0 16px}
+.card{background:linear-gradient(180deg,#0f1522,#0a0f18);border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0;
+  box-shadow:0 14px 32px rgba(0,0,0,.35)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.row.slim{margin-top:6px}
+.muted{color:var(--muted)} .chip{border:1px solid var(--line);border-radius:999px;padding:6px 10px;background:#0d1320}
+.btn{border:1px solid var(--line);background:#0d1320;color:var(--ink);border-radius:12px;padding:10px 12px;font-weight:600;cursor:pointer}
+.btn.primary{background:linear-gradient(180deg,#13233a,#0d1626);border-color:#22314a}
+.btn.secondary{background:linear-gradient(180deg,#10240f,#0a1a0d);border-color:#2b3b28}
+.btn.ghost{background:transparent}
+.btn.small{padding:7px 9px;font-size:14px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+label{font-weight:600}
+input[type="text"], textarea, select{background:#0c111b;color:var(--ink);border:1px solid var(--line);border-radius:10px;
+  padding:10px;outline:none} textarea{width:100%;min-height:90px;resize:vertical}
+hr{border:none;border-top:1px solid var(--line);margin:10px 0}
+.aff{font-size:clamp(20px,4.5vw,34px);line-height:1.3;background:linear-gradient(180deg,#0d1320,#090d15);
+  border:1px solid var(--line);border-radius:12px;padding:16px;margin:12px 0;min-height:110px}
+.progress-wrap{width:100%;height:8px;background:#0d1220;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.progress{height:100%;width:0%;background:linear-gradient(90deg,var(--hi),var(--hi2));transition:width .2s ease}
+.kbd{font-family:ui-monospace,Menlo,Monaco,Consolas,monospace;border:1px solid var(--line);border-radius:6px;padding:2px 6px;background:#0c111b}
+.badge{padding:4px 8px;border-radius:999px;border:1px solid var(--line);background:#0c111b}
+.slider{width:180px}
+.notice{border-left:3px solid var(--hi);padding:8px 10px;background:#0c121e;border:1px solid var(--line);border-radius:10px}
+footer{color:var(--muted);text-align:center;padding:24px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Affirmations After Morning Pages</h1>
+  <div class="row">
+    <span class="badge" id="streak">🔥 0-day streak</span>
+    <button id="btnReset" class="btn small ghost" title="Reset today">Reset today</button>
+  </div>
+</header>
+
+<main>
+  <!-- STEP 1 -->
+  <section class="card">
+    <h2>Step 1 — Morning Pages</h2>
+    <p class="muted">Tick this only after you finish your pages. It resets daily.</p>
+    <div class="row">
+      <button id="btnPages" class="btn primary" aria-pressed="false">I did my Morning Pages ✅</button>
+      <span class="chip" id="todayChip">Not done yet</span>
+    </div>
+  </section>
+
+  <!-- STEP 2 CONTROLS -->
+  <section class="card">
+    <h2>Step 2 — Science-Optimized Affirmations</h2>
+    <div class="row">
+      <label for="countSel">Count</label>
+      <select id="countSel">
+        <option>5</option><option selected>7</option><option>10</option>
+      </select>
+      <label for="repeatSel">Repeat each</label>
+      <select id="repeatSel">
+        <option>1</option><option>2</option><option selected>3</option><option>5</option>
+      </select>
+      <label><input type="checkbox" id="scienceToggle" checked/> Science Mode</label>
+      <button id="btnStart" class="btn primary" disabled>Start ▶</button>
+    </div>
+    <div class="notice" style="margin-top:10px">
+      <strong>Science Mode</strong> adds: embodiment (posture + breath), vivid visualization,
+      believability check (with “bridge” phrasing if needed), and an optional 60-sec micro-action.
+    </div>
+  </section>
+
+  <!-- SESSION -->
+  <section id="session" class="card" style="display:none">
+    <div class="progress-wrap" aria-hidden="true"><div id="bar" class="progress"></div></div>
+    <div class="row slim">
+      <span id="counter" class="muted">0/0 said • 0/0 done</span>
+      <span id="req" class="badge">Req: say ×3 • embody • visualize</span>
+    </div>
+    <div id="affBox" class="aff" tabindex="0">Press “Say it” to begin</div>
+
+    <div class="row">
+      <button id="btnSpeak" class="btn secondary">🔊 Say it</button>
+      <button id="btnSaid" class="btn primary">I said it</button>
+      <button id="btnNext" class="btn ghost" disabled>Next ➜</button>
+      <button id="btnEnd" class="btn ghost">End session</button>
+    </div>
+
+    <hr/>
+    <div id="science" style="display:block">
+      <div class="row">
+        <button id="btnEmbod" class="btn small ghost">✔ Embodied (tall + 4-in/6-out breath)</button>
+        <button id="btnViz" class="btn small ghost">✔ Visualized 10s</button>
+        <button id="btnMicro" class="btn small ghost">⏱ 60-sec micro-action</button>
+      </div>
+      <div class="row slim">
+        <label>Felt true?</label>
+        <input id="feel" type="range" min="0" max="5" value="4" class="slider"/>
+        <span id="feelVal" class="badge">4/5</span>
+        <span id="feelHint" class="muted">Good. Keep it vivid.</span>
+      </div>
+      <div id="bridgeWrap" class="notice" style="display:none;margin-top:10px">
+        <strong>Bridge version</strong> (use if the original feels <span class="kbd">&lt;3/5</span>):<br/>
+        <em id="bridgeText"></em>
+        <div class="row slim"><button id="useBridge" class="btn small ghost">Use bridge for this session</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIBRARY -->
+  <section class="card">
+    <h2>Your affirmations</h2>
+    <p class="muted">Add, edit, paste in bulk, or star favorites (they surface more often).</p>
+    <div class="row">
+      <input id="newAff" type="text" placeholder="Short, positive, present-tense…" maxlength="140"/>
+      <button id="btnAdd" class="btn primary">Add</button>
+      <button id="btnPaste" class="btn ghost">Quick-paste</button>
+      <button id="btnExport" class="btn ghost">Export</button>
+    </div>
+    <div id="pasteModal" class="card" style="display:none;margin-top:10px">
+      <p class="muted">Paste lines (one per line). We’ll turn them into affirmations.</p>
+      <textarea id="pasteBox" placeholder="e.g. I create with ease&#10;Being an artist is safe and abundant for me"></textarea>
+      <div class="row"><button id="btnPasteApply" class="btn primary">Replace list</button>
+      <button id="btnPasteCancel" class="btn ghost">Cancel</button></div>
+    </div>
+    <ul id="list" style="list-style:none;padding:0;margin:10px 0"></ul>
+  </section>
+</main>
+
+<footer><small>Made for your ritual. Stores data locally on your device. ✨</small></footer>
+
+<script>
+(function(){
+  // ---- Initial 10 distilled affirmations (your set)
+  const DISTILLED = [
+    "Being an artist is financially safe and abundant for me.",
+    "My ideas flow at the perfect time and build on each other naturally.",
+    "I see my best ideas through and bring them into reality.",
+    "I always have the time, energy, and will to finish what matters.",
+    "I find divine inspiration everywhere and channel it with ease.",
+    "My creativity and logic work together and support each other.",
+    "Creativity is my birthright, and I can only do it correctly.",
+    "People love, respect, and are moved by my art — and by me.",
+    "My desires and interests are worthy and worth pursuing.",
+    "I live beautifully, renewed and inspired each day."
+  ];
+
+  // ---- Storage keys
+  const K = {
+    AFF: 'aw_affirmations',
+    PAGES: 'aw_pages_date',
+    STREAK: 'aw_streak',
+    LAST: 'aw_last_complete'
+  };
+
+  // ---- DOM
+  const $ = id => document.getElementById(id);
+  const btnPages = $('btnPages'), todayChip = $('todayChip'), btnReset = $('btnReset');
+  const countSel = $('countSel'), repeatSel = $('repeatSel'), scienceToggle = $('scienceToggle'), btnStart = $('btnStart');
+  const session = $('session'), bar = $('bar'), affBox = $('affBox'), btnSpeak = $('btnSpeak'), btnSaid = $('btnSaid'),
+        btnNext = $('btnNext'), btnEnd = $('btnEnd'), counter = $('counter'), req = $('req');
+  const scienceBox = $('science'); const btnEmbod = $('btnEmbod'), btnViz = $('btnViz'), btnMicro = $('btnMicro');
+  const feel = $('feel'), feelVal = $('feelVal'), feelHint = $('feelHint'), bridgeWrap = $('bridgeWrap'),
+        bridgeText = $('bridgeText'), useBridge = $('useBridge');
+  const streakEl = $('streak');
+  const newAff = $('newAff'), btnAdd = $('btnAdd'), list = $('list'), btnExport = $('btnExport'),
+        btnPaste = $('btnPaste'), pasteModal = $('pasteModal'), pasteBox = $('pasteBox'),
+        btnPasteApply = $('btnPasteApply'), btnPasteCancel = $('btnPasteCancel');
+
+  // ---- State
+  let AFFS = loadAffirmations();
+  renderList(); hydrateStreak(); updatePagesUI(); refreshStartState();
+
+  // ---- Helpers
+  const todayKey = ()=> new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+  const shuffle = a => { for(let i=a.length-1;i>0;i--){ const j=(Math.random()*(i+1))|0; [a[i],a[j]]=[a[j],a[i]]; } };
+  function saveAffs(){ localStorage.setItem(K.AFF, JSON.stringify(AFFS)); refreshStartState(); }
+  function loadAffirmations(){
+    const raw = localStorage.getItem(K.AFF);
+    if(raw){ try{ const arr = JSON.parse(raw); if(Array.isArray(arr) && arr.length) return arr; }catch{} }
+    return DISTILLED.map((t,i)=>({id:i+1,text:t,fav:false}));
+  }
+
+  // ---- Morning Pages gate
+  function isPagesDone(){ return localStorage.getItem(K.PAGES) === todayKey(); }
+  function setPages(val){ val ? localStorage.setItem(K.PAGES, todayKey()) : localStorage.removeItem(K.PAGES); }
+  function updatePagesUI(){
+    const done = isPagesDone();
+    btnPages.setAttribute('aria-pressed', done?'true':'false');
+    btnPages.textContent = done ? "Morning Pages done ✅" : "I did my Morning Pages ✅";
+    todayChip.textContent = done ? "Done for today" : "Not done yet";
+  }
+  btnPages.addEventListener('click', ()=>{ setPages(true); updatePagesUI(); refreshStartState(); });
+  btnReset.addEventListener('click', ()=>{ setPages(false); updatePagesUI(); refreshStartState(); });
+
+  function refreshStartState(){ btnStart.disabled = !isPagesDone() || !AFFS.length; }
+
+  // ---- Streaks
+  function hydrateStreak(){
+    const s = parseInt(localStorage.getItem(K.STREAK)||"0",10);
+    streakEl.textContent = `🔥 ${s}-day streak`;
+  }
+  function updateStreak(){
+    const t = todayKey(), last = localStorage.getItem(K.LAST);
+    let s = parseInt(localStorage.getItem(K.STREAK)||"0",10);
+    const d=new Date(), y=d.getFullYear(), m=d.getMonth(), day=d.getDate();
+    const yest = new Date(y,m,day-1).toLocaleDateString('en-CA');
+    if(last===t){} else if(last===yest){ s+=1; } else { s=1; }
+    localStorage.setItem(K.STREAK, String(s));
+    localStorage.setItem(K.LAST, t);
+    hydrateStreak();
+  }
+
+  // ---- Session state
+  let S = null; // {order:[], i:0, per:3, said:0, embodied:false, visualized:false, usingBridge:false}
+
+  btnStart.addEventListener('click', ()=>{
+    const count = parseInt(countSel.value,10), per = parseInt(repeatSel.value,10);
+    const idxs = AFFS.map((_,i)=>i);
+    const favs = idxs.filter(i=>AFFS[i].fav);
+    const pool = favs.length ? favs.concat(idxs) : idxs;
+    shuffle(pool);
+    const seen = new Set(); const order=[];
+    for(const i of pool){ if(!seen.has(i)){ order.push(i); seen.add(i); } if(order.length>=Math.min(count,AFFS.length)) break; }
+    S = { order, i:0, per, said:0, embodied:!scienceToggle.checked?true:false, visualized:!scienceToggle.checked?true:false, usingBridge:false };
+    session.style.display='block';
+    scienceBox.style.display = scienceToggle.checked ? 'block' : 'none';
+    affBox.textContent = currentText();
+    affBox.focus();
+    updateUI();
+  });
+
+  btnSpeak.addEventListener('click', ()=>{
+    const u = new SpeechSynthesisUtterance(affBox.textContent);
+    u.rate = 1.0; u.pitch = 1.0; speechSynthesis.cancel(); speechSynthesis.speak(u);
+  });
+
+  btnSaid.addEventListener('click', ()=>{
+    if(!S) return; if(S.said < S.per){ S.said++; updateUI(); }
+  });
+
+  btnNext.addEventListener('click', nextAff);
+  btnEnd.addEventListener('click', endSession);
+
+  function nextAff(){
+    if(!S) return;
+    if(!(canAdvance())) return;
+    if(S.i < S.order.length-1){
+      S.i++; S.said=0; S.embodied = !scienceToggle.checked ? true:false; S.visualized = !scienceToggle.checked ? true:false; S.usingBridge=false;
+      affBox.textContent = currentText(); updateUI(); affBox.focus();
+    }else{ endSession(true); }
+  }
+
+  function endSession(completed){
+    session.style.display='none'; bar.style.width='0%'; affBox.textContent='Press “Say it” to begin';
+    counter.textContent='0/0 said • 0/0 done'; req.textContent=''; S=null;
+    if(completed){ updateStreak(); }
+  }
+
+  function canAdvance(){
+    if(!S) return false;
+    const saidOK = S.said >= S.per;
+    const sciOK = !scienceToggle.checked || (S.embodied && S.visualized);
+    return saidOK && sciOK;
+  }
+
+  function pct(){ if(!S) return 0; const t=S.order.length; const prog = (S.i + (S.said/S.per)) / t; return Math.min(1, prog); }
+  function currentText(){
+    if(!S) return "";
+    const affirm = AFFS[S.order[S.i]].text;
+    if(S.usingBridge) return bridgeFor(affirm);
+    return affirm;
+  }
+
+  function updateUI(){
+    if(!S) return;
+    const total = S.order.length, done = S.i, per=S.per, said=S.said;
+    const percent = Math.round(pct()*100);
+    bar.style.width = percent + "%";
+    counter.textContent = `${said}/${per} said • ${done}/${total} done`;
+    req.textContent = scienceToggle.checked ? `Req: say ×${per} • embody ${S.embodied?'✔':'—'} • visualize ${S.visualized?'✔':'—'}` : `Req: say ×${per}`;
+    btnNext.disabled = !canAdvance();
+    affBox.textContent = currentText();
+  }
+
+  // ---- Science controls
+  btnEmbod.addEventListener('click', ()=>{ if(!S) return; S.embodied = true; updateUI(); });
+  // Visualize 10s timer
+  let vizTimer=null; btnViz.addEventListener('click', ()=>{
+    if(!S) return;
+    if(S.visualized) return;
+    btnViz.textContent = "⏳ Visualizing… 10";
+    let n=10; clearInterval(vizTimer);
+    vizTimer = setInterval(()=>{ n--; btnViz.textContent = `⏳ Visualizing… ${n}`; if(n<=0){ clearInterval(vizTimer); S.visualized=true; btnViz.textContent="✔ Visualized 10s"; updateUI(); } }, 1000);
+  });
+  // 60s micro-action (optional)
+  let microTimer=null; btnMicro.addEventListener('click', ()=>{
+    let n=60; clearInterval(microTimer);
+    btnMicro.textContent = "⏳ Micro-action… 60";
+    microTimer = setInterval(()=>{ n--; btnMicro.textContent = `⏳ Micro-action… ${n}`; if(n<=0){ clearInterval(microTimer); btnMicro.textContent="✔ Micro-action done"; } }, 1000);
+  });
+
+  // Believability slider + bridge
+  feel.addEventListener('input', ()=>{
+    feelVal.textContent = `${feel.value}/5`;
+    const v = parseInt(feel.value,10);
+    if(v >= 4){ feelHint.textContent = "Good. Keep it vivid and embodied."; bridgeWrap.style.display='none'; S && (S.usingBridge=false); }
+    else if(v === 3){ feelHint.textContent = "Borderline — add a specific image that proves it true."; bridgeWrap.style.display='none'; S && (S.usingBridge=false); }
+    else{
+      feelHint.textContent = "Use a bridge phrase so your brain says yes.";
+      const affirm = S ? AFFS[S.order[S.i]].text : "";
+      bridgeText.textContent = bridgeFor(affirm);
+      bridgeWrap.style.display='block';
+    }
+  });
+  function bridgeFor(txt){
+    // Simple bridging templates
+    // If contains "I am", we use "I'm becoming…" else "I'm open to…"
+    return txt.replace(/^I am\b/i, "I'm becoming")
+              .replace(/^I\b/i, "I'm open to") + " (in progress)";
+  }
+  useBridge.addEventListener('click', ()=>{ if(!S) return; S.usingBridge = true; updateUI(); });
+
+  // ---- Library
+  function renderList(){
+    list.innerHTML = "";
+    if(!AFFS.length){
+      const li = document.createElement('li'); li.className='muted'; li.textContent="No affirmations yet. Add a few above.";
+      list.appendChild(li); return;
+    }
+    AFFS.forEach((a,idx)=>{
+      const li = document.createElement('li'); li.style.marginBottom='8px';
+      li.innerHTML = `
+        <div class="row" style="align-items:stretch">
+          <button class="btn small ghost fav" aria-pressed="${a.fav?'true':'false'}">${a.fav?'★':'☆'}</button>
+          <input class="txt" type="text" value="${a.text.replace(/"/g,'&quot;')}" maxlength="140" style="flex:1" />
+          <button class="btn small ghost del">🗑</button>
+        </div>`;
+      const fav = li.querySelector('.fav'), txt = li.querySelector('.txt'), del = li.querySelector('.del');
+      fav.addEventListener('click', ()=>{ a.fav=!a.fav; fav.textContent=a.fav?'★':'☆'; fav.setAttribute('aria-pressed', a.fav?'true':'false'); saveAffs(); });
+      txt.addEventListener('change', ()=>{ a.text = txt.value.trim(); saveAffs(); });
+      del.addEventListener('click', ()=>{ AFFS.splice(idx,1); saveAffs(); renderList(); });
+      list.appendChild(li);
+    });
+  }
+
+  btnAdd.addEventListener('click', ()=>{
+    const t = newAff.value.trim(); if(!t) return;
+    const id = (AFFS[AFFS.length-1]?.id||0)+1;
+    AFFS.push({id,text:t,fav:false}); newAff.value=""; saveAffs(); renderList();
+  });
+
+  // Quick paste (no JSON required)
+  btnPaste.addEventListener('click', ()=>{ pasteModal.style.display='block'; pasteBox.value = ""; pasteBox.focus(); });
+  btnPasteCancel.addEventListener('click', ()=>{ pasteModal.style.display='none'; });
+  btnPasteApply.addEventListener('click', ()=>{
+    const lines = pasteBox.value.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+    if(!lines.length){ alert("Nothing to import."); return; }
+    AFFS = lines.map((t,i)=>({id:i+1,text:t,fav:false}));
+    pasteModal.style.display='none'; saveAffs(); renderList(); refreshStartState();
+  });
+
+  // Export
+  btnExport.addEventListener('click', ()=>{
+    const data = JSON.stringify(AFFS, null, 2);
+    const url = URL.createObjectURL(new Blob([data],{type:'application/json'}));
+    const a=document.createElement('a'); a.href=url; a.download='affirmations.json'; a.click(); URL.revokeObjectURL(url);
+  });
+
+  // Keyboard shortcuts during session
+  document.addEventListener('keydown', (e)=>{
+    if(session.style.display==='none') return;
+    if(e.key===' '||e.key==='Enter'){ e.preventDefault(); btnSaid.click(); }
+    else if(e.key==='ArrowRight'){ btnNext.click(); }
+  });
+})();
+</script>
+</body>
+</html>
